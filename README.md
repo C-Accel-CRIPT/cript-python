@@ -1,16 +1,14 @@
-# Cript Python API library
+# CRIPT Python Software Development Kit (SDK)
 
 [![PyPI version](https://img.shields.io/pypi/v/cript.svg)](https://pypi.org/project/cript/)
 
-The Cript Python library provides convenient access to the Cript REST API from any Python 3.8+
-application. The library includes type definitions for all request params and response fields,
+The CRIPT Python SDK provides convenient access to the CRIPT REST API from any Python 3.8+
+application. The SDK includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
-
-It is partially generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The full API of this library can be found in [c-accel-cript.github.io/cript-python](https://c-accel-cript.github.io/cript-python).
+The full SDK documentation can be found in [c-accel-cript.github.io/cript-python](https://c-accel-cript.github.io/cript-python).
 
 ## Installation
 
@@ -35,7 +33,7 @@ The log level can be set to DEBUG, INFO, ERROR if ommited then the logs wont sho
 
 ## Usage
 
-The full API of this library can be found in [c-accel-cript.github.io/cript-python](https://c-accel-cript.github.io/cript-python).
+The full SDK documentaion can be found in [c-accel-cript.github.io/cript-python](https://c-accel-cript.github.io/cript-python).
 
 ```python
 from cript import *
@@ -72,11 +70,11 @@ client = Cript(
 
 ### Managing HTTP resources
 
-By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
+By default the SDK closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ### Handling errors
 
-When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `cript.APIConnectionError` is raised.
+When the SDK is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `cript.APIConnectionError` is raised.
 
 When the API returns a non-success status code (that is, 4xx or 5xx
 response), a subclass of `cript.APIStatusError` is raised, containing `status_code` and `response` properties.
@@ -165,7 +163,7 @@ Note that requests that time out are [retried twice by default](#retries).
 
 ### Logging
 
-We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
+We use the standard SDK [`logging`](https://docs.python.org/3/library/logging.html) module.
 
 You can enable logging by setting the environment variable `CRIPT_LOG` to `debug`.
 
@@ -187,9 +185,9 @@ if response.my_field is None:
 
 ### Making custom/undocumented requests
 
-This library is typed for convenient access to the documented API.
+This SDK is typed for convenient access to the documented API.
 
-If you need to access undocumented endpoints, params, or response properties, the library can still be used.
+If you need to access undocumented endpoints, params, or response properties, the SDK can still be used.
 
 #### Undocumented endpoints
 
