@@ -2,4 +2,4 @@
 
 from __future__ import annotations
 
-from .node_list_params import NodeListParams as NodeListParams
+from .exact_child_node_params import ExactChildNodeParams as ExactChildNodeParams

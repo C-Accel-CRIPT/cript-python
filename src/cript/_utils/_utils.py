@@ -286,18 +286,15 @@ _V = TypeVar("_V")
 
 
 @overload
-def strip_not_given(obj: None) -> None:
-    ...
+def strip_not_given(obj: None) -> None: ...
 
 
 @overload
-def strip_not_given(obj: Mapping[_K, _V | NotGiven]) -> dict[_K, _V]:
-    ...
+def strip_not_given(obj: Mapping[_K, _V | NotGiven]) -> dict[_K, _V]: ...
 
 
 @overload
-def strip_not_given(obj: object) -> object:
-    ...
+def strip_not_given(obj: object) -> object: ...
 
 
 def strip_not_given(obj: object | None) -> object:
@@ -401,3 +398,13 @@ def lru_cache(*, maxsize: int | None = 128) -> Callable[[CallableT], CallableT]:
         maxsize=maxsize,
     )
     return cast(Any, wrapper)  # type: ignore[no-any-return]
+
+
+def camel_case_to_snake_case(name):
+    return re.sub(r"(?<!^)(?=[A-Z])", "_", name).lower()
+
+
+def extract_node_from_result(result):
+    if len(result) > 0:
+        return result[0]
+    return None

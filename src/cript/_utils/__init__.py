@@ -30,6 +30,8 @@ from ._utils import (
     get_required_header as get_required_header,
     maybe_coerce_boolean as maybe_coerce_boolean,
     maybe_coerce_integer as maybe_coerce_integer,
+    camel_case_to_snake_case as camel_case_to_snake_case,
+    extract_node_from_result as extract_node_from_result,
 )
 from ._typing import (
     is_list_type as is_list_type,

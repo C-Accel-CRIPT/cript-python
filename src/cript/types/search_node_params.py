@@ -4,14 +4,10 @@ from __future__ import annotations
 
 from typing_extensions import Required, TypedDict
 
-__all__ = ["ChildListParams"]
+__all__ = ["SearchNodeParams"]
 
 
-class ChildListParams(TypedDict, total=False):
-    node_name: Required[str]
-
-    uuid: Required[str]
-
+class SearchNodeParams(TypedDict, total=False):
     q: Required[str]
     """Search query"""
 

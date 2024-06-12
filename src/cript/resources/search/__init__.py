@@ -1,12 +1,12 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from .nodes import (
-    NodesResource,
-    AsyncNodesResource,
-    NodesResourceWithRawResponse,
-    AsyncNodesResourceWithRawResponse,
-    NodesResourceWithStreamingResponse,
-    AsyncNodesResourceWithStreamingResponse,
+from .exact import (
+    ExactResource,
+    AsyncExactResource,
+    ExactResourceWithRawResponse,
+    AsyncExactResourceWithRawResponse,
+    ExactResourceWithStreamingResponse,
+    AsyncExactResourceWithStreamingResponse,
 )
 from .search import (
     SearchResource,
@@ -18,12 +18,12 @@ from .search import (
 )
 
 __all__ = [
-    "NodesResource",
-    "AsyncNodesResource",
-    "NodesResourceWithRawResponse",
-    "AsyncNodesResourceWithRawResponse",
-    "NodesResourceWithStreamingResponse",
-    "AsyncNodesResourceWithStreamingResponse",
+    "ExactResource",
+    "AsyncExactResource",
+    "ExactResourceWithRawResponse",
+    "AsyncExactResourceWithRawResponse",
+    "ExactResourceWithStreamingResponse",
+    "AsyncExactResourceWithStreamingResponse",
     "SearchResource",
     "AsyncSearchResource",
     "SearchResourceWithRawResponse",

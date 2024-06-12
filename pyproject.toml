@@ -1,11 +1,11 @@
 [project]
 name = "cript"
-version = "0.0.1-alpha.0"
-description = "The official Python library for the cript API"
+version = "3.0.0-alpha.3"
+description = "The official Python library for the CRIPT API"
 dynamic = ["readme"]
-license = "Apache-2.0"
+license = "MIT"
 authors = [
-{ name = "Cript", email = "brilant@mit.edu" },
+{ name = "Brilant Kasami", email = "brilant@mit.edu" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
@@ -15,13 +15,15 @@ dependencies = [
     "distro>=1.7.0, <2",
     "sniffio",
     "cached-property; python_version < '3.8'",
-
+    "boto3>=1.34.114",
+    "jsonpatch>=1.33",
+    "jsonschema>=4.22.0",
+    "python-dotenv>=1.0.1",
 ]
-requires-python = ">= 3.7"
+requires-python = ">= 3.8"
 classifiers = [
   "Typing :: Typed",
   "Intended Audience :: Developers",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
@@ -39,8 +41,8 @@ classifiers = [
 
 
 [project.urls]
-Homepage = "https://github.com/stainless-sdks/cript-python"
-Repository = "https://github.com/stainless-sdks/cript-python"
+Homepage = "https://github.com/c-accel-cript/cript-python"
+Repository = "https://github.com/c-accel-cript/cript-python"
 
 
 
@@ -58,7 +60,9 @@ dev-dependencies = [
     "nox",
     "dirty-equals>=0.6.0",
     "importlib-metadata>=6.7.0",
-
+    "mkdocs-material>=9.5.25",
+    "black>=24.4.2",
+    "mkdocs-awesome-pages-plugin>=2.9.2",
 ]
 
 [tool.rye.scripts]
@@ -108,11 +112,11 @@ path = "README.md"
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/stainless-sdks/cript-python/tree/main/\g<2>)'
+replacement = '[\1](https://github.com/c-accel-cript/cript-python/tree/main/\g<2>)'
 
 [tool.black]
 line-length = 120
-target-version = ["py37"]
+target-version = ["py38"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -128,7 +132,7 @@ filterwarnings = [
 # there are a couple of flags that are still disabled by
 # default in strict mode as they are experimental and niche.
 typeCheckingMode = "strict"
-pythonVersion = "3.7"
+pythonVersion = "3.8"
 
 exclude = [
     "_dev",
@@ -145,7 +149,7 @@ reportPrivateUsage = false
 [tool.ruff]
 line-length = 120
 output-format = "grouped"
-target-version = "py37"
+target-version = "py38"
 select = [
   # isort
   "I",

@@ -2,7 +2,7 @@
 
 from . import types
 from ._types import NOT_GIVEN, NoneType, NotGiven, Transport, ProxiesTypes
-from ._utils import file_from_path
+from ._utils import file_from_path, camel_case_to_snake_case, extract_node_from_result
 from ._client import Cript, Client, Stream, Timeout, Transport, AsyncCript, AsyncClient, AsyncStream, RequestOptions
 from ._models import BaseModel
 from ._version import __title__, __version__
@@ -26,6 +26,32 @@ from ._exceptions import (
 )
 from ._base_client import DefaultHttpxClient, DefaultAsyncHttpxClient
 from ._utils._logs import setup_logging as _setup_logging
+from dotenv import load_dotenv, find_dotenv
+from .nodes import (
+    Project,
+    Collection,
+    Experiment,
+    Material,
+    Algorithm,
+    Citation,
+    Computation,
+    ComputationProcess,
+    ComputationalForcefield,
+    Condition,
+    Data,
+    Equipment,
+    File,
+    Ingredient,
+    Inventory,
+    Parameter,
+    Process,
+    Property,
+    Quantity,
+    Reference,
+    Software,
+    SoftwareConfiguration,
+    User,
+)
 
 __all__ = [
     "types",
@@ -65,8 +91,32 @@ __all__ = [
     "DEFAULT_CONNECTION_LIMITS",
     "DefaultHttpxClient",
     "DefaultAsyncHttpxClient",
+    "Project",
+    "Collection",
+    "Experiment",
+    "Material",
+    "Algorithm",
+    "Citation",
+    "Computation",
+    "ComputationProcess",
+    "ComputationalForcefield",
+    "Condition",
+    "Data",
+    "Equipment",
+    "File",
+    "Ingredient",
+    "Inventory",
+    "Parameter",
+    "Process",
+    "Property",
+    "Quantity",
+    "Reference",
+    "Software",
+    "SoftwareConfiguration",
+    "User",
 ]
 
+load_dotenv(find_dotenv(usecwd=True), encoding="utf-8")
 _setup_logging()
 
 # Update the __module__ attribute for exported symbols so that

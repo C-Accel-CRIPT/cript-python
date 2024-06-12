@@ -1,0 +1,13 @@
+site_name: CRIPT Python SDK
+
+repo_url: https://github.com/c-accel-cript/cript-python
+repo_name: c-accel-cript/cript-python
+theme:
+  name: material
+  features:
+    - content.code.copy
+    - content.code.select
+
+plugins:
+    - search
+    - awesome-pages

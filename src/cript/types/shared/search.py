@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from ..._models import BaseModel
 
-__all__ = ["SearchResponse", "Data"]
+__all__ = ["Search", "Data"]
 
 
 class Data(BaseModel):
@@ -15,7 +15,7 @@ class Data(BaseModel):
     result: Optional[List[object]] = None
 
 
-class SearchResponse(BaseModel):
+class Search(BaseModel):
     code: Optional[float] = None
 
     data: Optional[Data] = None

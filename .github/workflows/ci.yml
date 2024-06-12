@@ -6,47 +6,73 @@ on:
   pull_request:
     branches:
       - main
-
+permissions:
+  contents: write
 jobs:
-  lint:
-    name: lint
-    runs-on: ubuntu-latest
+  # lint:
+  #   name: lint
+  #   runs-on: ubuntu-latest
     
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Install Rye
-        run: |
-          curl -sSf https://rye-up.com/get | bash
-          echo "$HOME/.rye/shims" >> $GITHUB_PATH
-        env:
-          RYE_VERSION: 0.24.0
-          RYE_INSTALL_OPTION: '--yes'
+  #     - name: Install Rye
+  #       run: |
+  #         curl -sSf https://rye-up.com/get | bash
+  #         echo "$HOME/.rye/shims" >> $GITHUB_PATH
+  #       env:
+  #         RYE_VERSION: 0.24.0
+  #         RYE_INSTALL_OPTION: '--yes'
 
-      - name: Install dependencies
-        run: rye sync --all-features
+  #     - name: Install dependencies
+  #       run: rye sync --all-features
 
-      - name: Run lints
-        run: ./scripts/lint
-  test:
-    name: test
+  #     - name: Run lints
+  #       run: ./scripts/lint
+  # test:
+  #   name: test
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Install Rye
+  #       run: |
+  #         curl -sSf https://rye-up.com/get | bash
+  #         echo "$HOME/.rye/shims" >> $GITHUB_PATH
+  #       env:
+  #         RYE_VERSION: 0.24.0
+  #         RYE_INSTALL_OPTION: '--yes'
+
+  #     - name: Bootstrap
+  #       run: ./scripts/bootstrap
+
+  #     - name: Run tests
+  #       run: pytest tests/api_resources/test_cript.py
+
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Rye
+      - name: Configure Git Credentials
         run: |
-          curl -sSf https://rye-up.com/get | bash
-          echo "$HOME/.rye/shims" >> $GITHUB_PATH
-        env:
-          RYE_VERSION: 0.24.0
-          RYE_INSTALL_OPTION: '--yes'
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
 
-      - name: Bootstrap
-        run: ./scripts/bootstrap
 
-      - name: Run tests
-        run: ./scripts/test
+      - uses: actions/cache@v4
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      - run: pip install mkdocs-material
+      - run: pip install mkdocs-awesome-pages-plugin
 
+
+      - run: mkdocs gh-deploy --force

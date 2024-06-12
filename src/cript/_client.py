@@ -81,20 +81,20 @@ class Cript(SyncAPIClient):
     ) -> None:
         """Construct a new synchronous cript client instance.
 
-        This automatically infers the `bearer_token` argument from the `CRIPT_BEARER_TOKEN` environment variable if it is not provided.
+        This automatically infers the `bearer_token` argument from the `CRIPT_API_KEY` environment variable if it is not provided.
         """
         if bearer_token is None:
-            bearer_token = os.environ.get("CRIPT_BEARER_TOKEN")
+            bearer_token = os.environ.get("CRIPT_API_KEY")
         if bearer_token is None:
             raise CriptError(
-                "The bearer_token client option must be set either by passing bearer_token to the client or by setting the CRIPT_BEARER_TOKEN environment variable"
+                "The bearer_token client option must be set either by passing bearer_token to the client or by setting the CRIPT_API_KEY environment variable"
             )
         self.bearer_token = bearer_token
 
         if base_url is None:
             base_url = os.environ.get("CRIPT_BASE_URL")
         if base_url is None:
-            base_url = f"http://localhost:5150/api/v1"
+            base_url = f"https://api.criptapp.org/api/v1"
 
         super().__init__(
             version=__version__,
@@ -255,20 +255,20 @@ class AsyncCript(AsyncAPIClient):
     ) -> None:
         """Construct a new async cript client instance.
 
-        This automatically infers the `bearer_token` argument from the `CRIPT_BEARER_TOKEN` environment variable if it is not provided.
+        This automatically infers the `bearer_token` argument from the `CRIPT_API_KEY` environment variable if it is not provided.
         """
         if bearer_token is None:
-            bearer_token = os.environ.get("CRIPT_BEARER_TOKEN")
+            bearer_token = os.environ.get("CRIPT_API_KEY")
         if bearer_token is None:
             raise CriptError(
-                "The bearer_token client option must be set either by passing bearer_token to the client or by setting the CRIPT_BEARER_TOKEN environment variable"
+                "The bearer_token client option must be set either by passing bearer_token to the client or by setting the CRIPT_API_KEY environment variable"
             )
         self.bearer_token = bearer_token
 
         if base_url is None:
             base_url = os.environ.get("CRIPT_BASE_URL")
         if base_url is None:
-            base_url = f"http://localhost:5150/api/v1"
+            base_url = f"https://api.criptapp.org/api/v1"
 
         super().__init__(
             version=__version__,

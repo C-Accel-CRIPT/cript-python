@@ -2,83 +2,79 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/cript.svg)](https://pypi.org/project/cript/)
 
-The Cript Python library provides convenient access to the Cript REST API from any Python 3.7+
+The Cript Python library provides convenient access to the Cript REST API from any Python 3.8+
 application. The library includes type definitions for all request params and response fields,
 and offers both synchronous and asynchronous clients powered by [httpx](https://github.com/encode/httpx).
 
-It is generated with [Stainless](https://www.stainlessapi.com/).
+It is partially generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The REST API documentation can be found [on docs.cript.com](https://docs.cript.com). The full API of this library can be found in [api.md](api.md).
+The full API of this library can be found in [c-accel-cript.github.io/cript-python](https://c-accel-cript.github.io/cript-python).
 
 ## Installation
 
 ```sh
 # install from this staging repo
-pip install git+ssh://git@github.com/stainless-sdks/cript-python.git
+pip install git+https://github.com/c-accel-cript/cript-python.git
 ```
 
+## Config
+
+Create a `.env` file and copy your API KEYS from the CRIPT website->Account->Security Settings
+
+```
+CRIPT_API_KEY=API Token
+CRIPT_STORAGE_KEY=Storage Token
+CRIPT_LOG=
+```
+
+The log level can be set to DEBUG, INFO, ERROR if ommited then the logs wont show.
 > [!NOTE]
 > Once this package is [published to PyPI](https://app.stainlessapi.com/docs/guides/publish), this will become: `pip install --pre cript`
 
 ## Usage
 
-The full API of this library can be found in [api.md](api.md).
+The full API of this library can be found in [c-accel-cript.github.io/cript-python](https://c-accel-cript.github.io/cript-python).
 
 ```python
-import os
-from cript import Cript
+from cript import *
+
+proj = Project(
+    name="Change Project Name",
+    notes="my notes",
+)
+
+print(proj)
+```
+
+## Advanced
+### Configuring the HTTP client
+
+You can directly override the [httpx client](https://www.python-httpx.org/api/#client) to customize it for your use case, including:
+
+- Support for proxies
+- Custom transports
+- Additional [advanced](https://www.python-httpx.org/advanced/#client-instances) functionality
+
+```python
+from cript import Cript, DefaultHttpxClient
 
 client = Cript(
-    # This is the default and can be omitted
-    bearer_token=os.environ.get("CRIPT_BEARER_TOKEN"),
+    # Or use the `CRIPT_BASE_URL` env var
+    base_url="http://my.test.server.example.com:8083",
+    http_client=DefaultHttpxClient(
+        proxies="http://my.test.proxy.example.com",
+        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
+    ),
 )
-
-schema_response = client.schema.retrieve()
-print(schema_response.code)
 ```
 
-While you can provide a `bearer_token` keyword argument,
-we recommend using [python-dotenv](https://pypi.org/project/python-dotenv/)
-to add `CRIPT_BEARER_TOKEN="My Bearer Token"` to your `.env` file
-so that your Bearer Token is not stored in source control.
+### Managing HTTP resources
 
-## Async usage
+By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
-Simply import `AsyncCript` instead of `Cript` and use `await` with each API call:
-
-```python
-import os
-import asyncio
-from cript import AsyncCript
-
-client = AsyncCript(
-    # This is the default and can be omitted
-    bearer_token=os.environ.get("CRIPT_BEARER_TOKEN"),
-)
-
-
-async def main() -> None:
-    schema_response = await client.schema.retrieve()
-    print(schema_response.code)
-
-
-asyncio.run(main())
-```
-
-Functionality between the synchronous and asynchronous clients is otherwise identical.
-
-## Using types
-
-Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typing.html#typing.TypedDict). Responses are [Pydantic models](https://docs.pydantic.dev) which also provide helper methods for things like:
-
-- Serializing back into JSON, `model.to_json()`
-- Converting to a dictionary, `model.to_dict()`
-
-Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
-
-## Handling errors
+### Handling errors
 
 When the library is unable to connect to the API (for example, due to network connection problems or a timeout), a subclass of `cript.APIConnectionError` is raised.
 
@@ -167,8 +163,6 @@ On timeout, an `APITimeoutError` is thrown.
 
 Note that requests that time out are [retried twice by default](#retries).
 
-## Advanced
-
 ### Logging
 
 We use the standard library [`logging`](https://docs.python.org/3/library/logging.html) module.
@@ -190,41 +184,6 @@ if response.my_field is None:
   else:
     print('Got json like {"my_field": null}.')
 ```
-
-### Accessing raw response data (e.g. headers)
-
-The "raw" Response object can be accessed by prefixing `.with_raw_response.` to any HTTP method call, e.g.,
-
-```py
-from cript import Cript
-
-client = Cript()
-response = client.schema.with_raw_response.retrieve()
-print(response.headers.get('X-My-Header'))
-
-schema = response.parse()  # get the object that `schema.retrieve()` would have returned
-print(schema.code)
-```
-
-These methods return an [`APIResponse`](https://github.com/stainless-sdks/cript-python/tree/main/src/cript/_response.py) object.
-
-The async client returns an [`AsyncAPIResponse`](https://github.com/stainless-sdks/cript-python/tree/main/src/cript/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
-
-#### `.with_streaming_response`
-
-The above interface eagerly reads the full response body when you make the request, which may not always be what you want.
-
-To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
-
-```python
-with client.schema.with_streaming_response.retrieve() as response:
-    print(response.headers.get("X-My-Header"))
-
-    for line in response.iter_lines():
-        print(line)
-```
-
-The context manager is required so that the response will reliably be closed.
 
 ### Making custom/undocumented requests
 
@@ -261,30 +220,6 @@ To access undocumented response properties, you can access the extra fields like
 can also get all the extra fields on the Pydantic model as a dict with
 [`response.model_extra`](https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel.model_extra).
 
-### Configuring the HTTP client
-
-You can directly override the [httpx client](https://www.python-httpx.org/api/#client) to customize it for your use case, including:
-
-- Support for proxies
-- Custom transports
-- Additional [advanced](https://www.python-httpx.org/advanced/#client-instances) functionality
-
-```python
-from cript import Cript, DefaultHttpxClient
-
-client = Cript(
-    # Or use the `CRIPT_BASE_URL` env var
-    base_url="http://my.test.server.example.com:8083",
-    http_client=DefaultHttpxClient(
-        proxies="http://my.test.proxy.example.com",
-        transport=httpx.HTTPTransport(local_address="0.0.0.0"),
-    ),
-)
-```
-
-### Managing HTTP resources
-
-By default the library closes underlying HTTP connections whenever the client is [garbage collected](https://docs.python.org/3/reference/datamodel.html#object.__del__). You can manually close the client using the `.close()` method if desired, or with a context manager that closes when exiting.
 
 ## Versioning
 
@@ -296,8 +231,8 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/cript-python/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/c-accel-cript/cript-python/issues) with questions, bugs, or suggestions.
 
 ## Requirements
 
-Python 3.7 or higher.
+Python 3.8 or higher.

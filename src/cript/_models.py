@@ -566,7 +566,9 @@ def _build_discriminated_union_meta(*, union: type, meta_annotations: tuple[Any,
                         if isinstance(entry, str):
                             mapping[entry] = variant
             else:
-                field_info = cast("dict[str, FieldInfo]", variant.__fields__).get(discriminator_field_name)  # pyright: ignore[reportDeprecated, reportUnnecessaryCast]
+                field_info = cast("dict[str, FieldInfo]", variant.__fields__).get(
+                    discriminator_field_name
+                )  # pyright: ignore[reportDeprecated, reportUnnecessaryCast]
                 if not field_info:
                     continue
 
