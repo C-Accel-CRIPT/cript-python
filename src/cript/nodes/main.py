@@ -27,7 +27,7 @@ class CriptNode(dict):
         self.__dict__["parent"] = None
         schema = copy.deepcopy(cript_schema)
         schema["$ref"] = f"#/$defs/{self.__class__.__name__}Post"
-        resolver = None
+        resolver = kwargs.get("resolver", None)
         kwargs["node"] = [self.__class__.__name__]
         self.prepare_child_nodes(kwargs)
         self.__dict__["kwargs"] = copy.deepcopy(kwargs)
@@ -42,7 +42,7 @@ class CriptNode(dict):
         if self._retrieve_on_init:
             if "uuid" not in kwargs and len(kwargs) > 1:
                 self.validate(d)
-            node = camel_case_to_snake_case(self.__class__.__name__)
+
             if kwargs.get("uuid"):
                 self.retrieve_by_uuid(kwargs["uuid"])
             else:
@@ -51,13 +51,13 @@ class CriptNode(dict):
             try:
                 self.validate(d)
             except ValueError as exc:
-                raise ValueError(str(exc))
-            else:
-                if self._post:
-                    self._create_node(d)
-                for key in d:
-                    if key in self.__dict__["schema"]["$defs"][f"{self.__class__.__name__}Post"]["properties"]:
-                        setattr(self, key, d[key])
+                raise ValueError(str(exc)) from exc
+
+            if self._post:
+                self._create_node(d)
+            for key in d:
+                if key in self.__dict__["schema"]["$defs"][f"{self.node_name}Post"]["properties"]:
+                    setattr(self, key, d[key])
         else:
             for key in kwargs:
                 setattr(self, key, kwargs[key])
@@ -71,9 +71,15 @@ class CriptNode(dict):
     def name_url(self):
         return camel_case_to_snake_case(self.__class__.__name__)
 
+    @property
+    def node_name(self):
+        return self.__class__.__name__
+
     def final_update(self):
         if not hasattr(self, "uuid"):
+            logger.info(f"{self.node_name} {self.get(self._primary_key)} doesn't have uuid assigned yet, and cannot be final_updated.")
             return
+
         kwargs = self.__dict__["kwargs"]
         for key in kwargs:
             setattr(self, key, kwargs[key])
@@ -94,7 +100,7 @@ class CriptNode(dict):
                 elif isinstance(l["value"], dict):
                     if l["value"].get("uuid") and len(l["value"]) == 1:
                         continue
-                    elif l["value"].get("node"):
+                    if l["value"].get("node"):
                         continue
                 else:
                     attr = prop_path.split("/")
@@ -107,9 +113,11 @@ class CriptNode(dict):
                 uuid=self.uuid,
                 body=body,
             )
+            return result
 
     def process_update(self, key, child_to_process, is_array=False):
         if not hasattr(self, "uuid"):
+            logger.info(f"{self.node_name} {self.get(self._primary_key)} doesn't have uuid assigned yet, and cannot process_update.")
             return
         body = {"node": self.node}
         node_to_append = child_to_process
@@ -133,6 +141,7 @@ class CriptNode(dict):
                 uuid=self.uuid,
                 body=body,
             )
+            return result
 
     def process_children(self):
         kwargs = self.__dict__["children"]
@@ -192,7 +201,7 @@ class CriptNode(dict):
         #         self.validate(mutation)
         #     except ValueError as exc:
         #         msg = "Unable to set '%s' to %r. Reason: %s" % (key, value, str(exc))
-        #         raise Exception(str(exc))
+        #         raise Exception(str(exc)) from exc
 
         dict.__setitem__(self, key, value)
 
@@ -210,7 +219,7 @@ class CriptNode(dict):
                 self.validate(mutation)
             except ValueError as exc:
                 msg = "Unable to delete attribute '%s'. Reason: %s" % (key, str(exc))
-                raise Exception(str(exc))
+                raise ValueError(str(msg)) from exc
 
         dict.__delitem__(self, key)
 
@@ -269,6 +278,8 @@ class CriptNode(dict):
         return self.copy()
 
     def __deepcopy__(self, memo):
+        # TODO consider what a deep copy means.
+        # Does it mean we have new nodes with new UUIDs?
         return copy.deepcopy(dict(self), memo)
 
     def remove(self, key, item=None):
@@ -282,7 +293,7 @@ class CriptNode(dict):
         try:
             self.validate(mutation)
         except ValueError as exc:
-            raise RuntimeError(str(exc))
+            raise RuntimeError(str(exc)) from exc
         dict.update(self, other)
 
     def items(self):
@@ -307,9 +318,9 @@ class CriptNode(dict):
             if errors:
                 # logger.error(f"Node: {self.__class__.__name__}, errors: {[error.message for error in errors]}")
                 sys.tracebacklimit = 0
-                raise ValueError(f"Node: {self.__class__.__name__}, errors: {[error.message for error in errors]}")
+                raise ValueError(f"Node: {self.node_name}, errors: {[error.message for error in errors]}")
         except jsonschema.ValidationError as exc:
-            raise ValueError(str(exc))
+            raise ValueError(str(exc)) from exc
 
     def retrieve_by_uuid(self, uuid):
         try:
@@ -318,13 +329,13 @@ class CriptNode(dict):
             self.__dict__["exists"] = True
             allowed_data = {}
             for key in data:
-                if key in self.__dict__["schema"]["$defs"][f"{self.__class__.__name__}Post"]["properties"]:
+                if key in self.__dict__["schema"]["$defs"][f"{self.node_name}Post"]["properties"]:
                     setattr(self, key, data[key])
                     allowed_data[key] = data[key]
             self.__dict__["__original__"] = copy.deepcopy(allowed_data)
         except NotFoundError:
             self.__dict__["exists"] = False
-            pass
+
 
     def retrieve_by_field(self, query):
         try:
@@ -336,13 +347,12 @@ class CriptNode(dict):
             allowed_data = {}
             self.__dict__["exists"] = True
             for key in data:
-                if key in self.__dict__["schema"]["$defs"][f"{self.__class__.__name__}Post"]["properties"]:
+                if key in self.__dict__["schema"]["$defs"][f"{self.node_name}Post"]["properties"]:
                     setattr(self, key, data[key])
                     allowed_data[key] = data[key]
             self.__dict__["__original__"] = copy.deepcopy(allowed_data)
         except NotFoundError:
             self.__dict__["exists"] = False
-            pass
 
     def process_with_parent(self, uuid):
         self.__dict__["parent"] = uuid
@@ -389,7 +399,7 @@ class CriptNode(dict):
 
     def delete(self, *args, **kwargs):
         if not self.get("uuid"):
-            raise ValueError("Node unitialized, Missing uuid")
+            raise ValueError(f"Node {self.node_name} {self.get(self._primary_key)} unitialized, Missing uuid.")
         if not kwargs:
             # delete the whole node
             result = self.__dict__["client"].nodes.delete(node=self.name_url, uuid=self.uuid, body={})
