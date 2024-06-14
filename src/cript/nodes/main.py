@@ -1,5 +1,4 @@
 import copy
-import inspect
 import logging
 import sys
 import jsonpatch
@@ -39,7 +38,8 @@ class CriptNode(dict):
         else:
             self.__dict__["validator_instance"] = cls(schema)
         d = dict(*args, **kwargs)
-        if self._retrieve_on_init:
+
+        if self._retrieve_on_init or kwargs.get("uuid"):
             if "uuid" not in kwargs and len(kwargs) > 1:
                 self.validate(d)
             node = camel_case_to_snake_case(self.__class__.__name__)
@@ -417,3 +417,6 @@ class CriptNode(dict):
             uuid = node.get("uuid")
             node.clear()
             node["uuid"] = uuid
+
+    def search(self, q, field):
+        pass

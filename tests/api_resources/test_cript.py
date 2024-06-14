@@ -22,6 +22,7 @@ generic_computation= f"computation_{uuid4()}"
 
 generic_uuid = f"{uuid4()}"
 CREATED_UUID = None
+COLLECTION_UUID = None
 
 class TestCript:
 
@@ -51,6 +52,13 @@ class TestCript:
     def test_create_collection_exisiting_project(self) -> None:
         col1=Collection(name=generic_collection)
         proj = Project(uuid=CREATED_UUID, collection=[col1])
+        global COLLECTION_UUID
+        COLLECTION_UUID = col1.get("uuid")
+        assert col1.get("name") == generic_collection
+        assert col1.get("uuid") is not None
+
+    def test_collection_uuid(self) -> None:
+        col1=Collection(uuid=COLLECTION_UUID)
         assert col1.get("name") == generic_collection
 
     def test_create_experiment_exisiting_collection(self) -> None:
