@@ -53,6 +53,8 @@ from .nodes import (
     User,
 )
 
+from .search import Search
+
 __all__ = [
     "types",
     "__version__",
@@ -114,6 +116,7 @@ __all__ = [
     "Software",
     "SoftwareConfiguration",
     "User",
+    "Search",
 ]
 
 load_dotenv(find_dotenv(usecwd=True), encoding="utf-8")

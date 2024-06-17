@@ -13,3 +13,6 @@ class SearchNodeParams(TypedDict, total=False):
 
     field: str
     """name of the field to search"""
+
+    after: str
+    """uuid of the last item from the previous result"""

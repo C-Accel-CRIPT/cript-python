@@ -51,8 +51,10 @@ class SearchResource(SyncAPIResource):
         self,
         node: str,
         *,
-        q: str,
-        field: str | NotGiven = NOT_GIVEN,
+        # q: str,
+        # field: str | NotGiven = "name",
+        # after: str | None = "",
+        body: object,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -78,18 +80,76 @@ class SearchResource(SyncAPIResource):
         """
         if not node:
             raise ValueError(f"Expected a non-empty value for `node` but received {node!r}")
-        return self._get(
+        print(
+            "maybe",
+            maybe_transform(
+                body,
+                search_node_params.SearchNodeParams,
+            ),
+        )
+        return self._post(
             f"/search/{node}",
+            body=maybe_transform(
+                body,
+                search_node_params.SearchNodeParams,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+            ),
+            cast_to=Search,
+        )
+
+    def bigsmiles(
+        self,
+        *,
+        q: str,
+        field: str | NotGiven = "name",
+        after: str | None = "",
+        score: float | None = None,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
+    ) -> Search:
+        """
+        Substructure search
+
+        Args:
+          q: Search query
+
+          field: name of the field to search
+
+          extra_headers: Send extra headers
+
+          extra_query: Add additional query parameters to the request
+
+          extra_body: Add additional JSON properties to the request
+
+          timeout: Override the client-level default timeout for this request, in seconds
+        """
+
+        params = {
+            "q": q,
+            "field": field,
+        }
+        if after and score:
+            params["after"] = after
+            params["score"] = score
+
+        return self._get(
+            f"/search/bigsmiles",
             options=make_request_options(
                 extra_headers=extra_headers,
                 extra_query=extra_query,
                 extra_body=extra_body,
                 timeout=timeout,
                 query=maybe_transform(
-                    {
-                        "q": q,
-                        "field": field,
-                    },
+                    params,
                     search_node_params.SearchNodeParams,
                 ),
             ),

@@ -12,8 +12,6 @@ import cript
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
 
-generic_uuid = f"{uuid4()}"
-
 class TestCript:
 
     @pytest.fixture(scope="session")
@@ -48,6 +46,14 @@ class TestCript:
         assert node.get("uuid") is not None
         return created_uuid
 
+    @pytest.fixture(scope='session')
+    def collection_uuid(self, generic_collection, project_uuid) -> None:
+        col1= cript.Collection(name=generic_collection)
+        proj = cript.Project(uuid=project_uuid, collection=[col1])
+        assert col1.get("name") == generic_collection
+        assert col1.get("uuid") is not None
+        return col1.uuid
+
 
     def test_update_node(self, generic_name) -> None:
         note = "mens et manus"
@@ -64,6 +70,11 @@ class TestCript:
             notes="my notes",
         )
         assert node.get("name") is not None
+
+
+    def test_collection_uuid(self, collection_uuid, generic_collection) -> None:
+        col1 = cript.Collection(uuid=collection_uuid)
+        assert col1.get("name") == generic_collection
 
     def test_create_collection_exisiting_project(self, generic_collection, project_uuid) -> None:
         col1=cript.Collection(name=generic_collection)
