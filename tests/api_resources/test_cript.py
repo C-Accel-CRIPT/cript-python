@@ -1,16 +1,9 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
-
-from __future__ import annotations
-
-import os
 from uuid import uuid4
 
 import pytest
 
 import cript
-
-base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
-
 
 class TestCript:
 
