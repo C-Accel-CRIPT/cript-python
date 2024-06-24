@@ -48,7 +48,7 @@ class TestCript:
             notes="my notes",
         )
         assert node.get("name") is not None
-    
+
     def test_create_collection_exisiting_project(self) -> None:
         col1=Collection(name=generic_collection)
         proj = Project(uuid=CREATED_UUID, collection=[col1])
@@ -246,6 +246,7 @@ class TestCript:
         proj1.delete(material=None)
         assert proj1.get("material") is None
 
+
     def test_delete_node(self) -> None:
         proj1 = Project(uuid=CREATED_UUID)
         proj1.delete()
@@ -255,3 +256,29 @@ class TestCript:
         col1 = Collection(name=generic_collection)
         with pytest.raises(ValueError):
             col1.delete()
+
+    def test_invalid_node(self):
+        with pytest.raises(ValueError):
+            Property(
+                key="invalid key enthalpy",
+                type="value",
+                value=5.0,
+                unit="GPa",
+                uncertainty=0.1,
+                uncertainty_type="stdev",
+                structure="structure",
+                method="comp",
+                notes="my complex_property_node notes",
+            )
+
+        Property(
+            key="enthalpy",
+            type="value",
+            value=5.0,
+            unit="GPa", # Should also raise exception as this is not a good unit for enthalpy
+            uncertainty=0.1,
+            uncertainty_type="stdev",
+            structure="structure",
+            method="comp",
+            notes="my complex_property_node notes",
+        )
