@@ -261,7 +261,7 @@ class TestCript:
             material_list += [mat1]
         proj1 = Project(uuid=CREATED_UUID, material=material_list)
 
-        paginator_iter = cript.resources.child.ChildPaginator(proj1, "material")
+        paginator_iter = proj1.material
         for i, child in enumerate(paginator_iter):
             assert child.get("name").endswith(f"#{i}")
 

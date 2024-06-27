@@ -220,7 +220,7 @@ class CriptNode(dict):
         try:
             return self.__getitem__(key)
         except KeyError:
-            print("\nchild debug\n", self.children)
+            # TODO consider a caching of these paginators
             if key in self.children:
                 child_paginator = cript.resources.child.ChildPaginator(self, key)
                 return child_paginator
