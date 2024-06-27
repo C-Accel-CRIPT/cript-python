@@ -67,6 +67,9 @@ class TestCript:
         col1 = Collection(name=generic_collection, experiment=[exp1])
         proj1 = Project(uuid=CREATED_UUID, collection=[col1])
         assert exp1.get("name") == generic_experiment
+        assert proj1.collection[0].get("name") == col1.name
+        # TODO full node access
+        # assert proj1.collection[0].experiment[0].name == exp1.name
 
 
     def test_create_material(self) -> None:
@@ -298,6 +301,11 @@ class TestCript:
         # Test empty paginator
         paginator_empty = cript.resources.child.ChildPaginator(proj1, "inventory")
         assert len(paginator_empty) == 0
+
+        # Test empty paginator
+        paginator_non_exist = cript.resources.child.ChildPaginator(proj1, "non-existent attribute")
+        with pytest.raises(cript.NotFoundError):
+            len(paginator_non_exist)
 
     def test_delete_node(self) -> None:
         proj1 = Project(uuid=CREATED_UUID)

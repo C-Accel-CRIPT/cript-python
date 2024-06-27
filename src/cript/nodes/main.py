@@ -7,8 +7,10 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import best_match
 from uuid import uuid4
 
+import cript
 from cript import Cript, NotFoundError, camel_case_to_snake_case, extract_node_from_result
 from .schema import cript_schema
+
 
 logger = logging.getLogger(__name__)
 
@@ -218,7 +220,12 @@ class CriptNode(dict):
         try:
             return self.__getitem__(key)
         except KeyError:
-            raise AttributeError(key)
+            print("\nchild debug\n", self.children)
+            if key in self.children:
+                child_paginator = cript.resources.child.ChildPaginator(self, key)
+                return child_paginator
+            else:
+                raise AttributeError(key)
 
     def __setattr__(self, key, value):
         self.__setitem__(key, value)
