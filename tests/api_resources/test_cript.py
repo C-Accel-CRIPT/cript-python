@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytest
 
+import cript
 from cript import *
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -48,7 +49,7 @@ class TestCript:
             notes="my notes",
         )
         assert node.get("name") is not None
-    
+
     def test_create_collection_exisiting_project(self) -> None:
         col1=Collection(name=generic_collection)
         proj = Project(uuid=CREATED_UUID, collection=[col1])
@@ -245,6 +246,58 @@ class TestCript:
         proj1 = Project(uuid=CREATED_UUID, material=[mat1])
         proj1.delete(material=None)
         assert proj1.get("material") is None
+
+    def test_child_paginator(self)->None:
+        material_list = []
+        num_mat = 15
+        for i in range(num_mat):
+            mat1 = Material(
+                name=f"{generic_material1} #{i}",
+                bigsmiles="{[][<]CCO[>][]}",
+            )
+            material_list += [mat1]
+        proj1 = Project(uuid=CREATED_UUID, material=material_list)
+
+        paginator_iter = cript.resources.child.ChildPaginator(proj1, "material")
+        for i, child in enumerate(paginator_iter):
+            assert child.get("name").endswith(f"#{i}")
+
+        paginator_len = cript.resources.child.ChildPaginator(proj1, "material")
+        # First time is doing it on empty
+        assert len(paginator_len) == num_mat
+        # Second time, it should have fetched
+        assert len(paginator_len) == num_mat
+
+        paginator_rand = cript.resources.child.ChildPaginator(proj1, "material")
+
+        # Accessing the second page right away
+        idx = 12
+        child = paginator_rand[idx]
+        assert child.get("name").endswith(f"#{idx}")
+        # And again, shouldn't trigger a new fetch
+        idx = 13
+        child = paginator_rand[idx]
+        assert child.get("name").endswith(f"#{idx}")
+
+        with pytest.raises(IndexError):
+            paginator_rand[num_mat+4]
+
+        paginator_neg = cript.resources.child.ChildPaginator(proj1, "material")
+
+        # Accessing the second page right away
+        idx = -1
+        child = paginator_neg[idx]
+        assert child.get("name").endswith(f"#{num_mat-1}")
+
+        # Test list conversion
+        paginator_list = cript.resources.child.ChildPaginator(proj1, "material")
+        fetched_material_list = list(paginator_list)
+        for i, child in enumerate(fetched_material_list):
+            assert child.get("name").endswith(f"#{i}")
+
+        # Test empty paginator
+        paginator_empty = cript.resources.child.ChildPaginator(proj1, "inventory")
+        assert len(paginator_empty) == 0
 
     def test_delete_node(self) -> None:
         proj1 = Project(uuid=CREATED_UUID)
