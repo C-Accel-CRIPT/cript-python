@@ -33,6 +33,12 @@ from .controlled_vocabularies import (
     AsyncControlledVocabulariesResourceWithStreamingResponse,
 )
 
+from .child import (
+    ChildResource,
+    ChildResourceWithRawResponse,
+    ChildResourceWithStreamingResponse,
+)
+
 __all__ = [
     "SchemaResource",
     "AsyncSchemaResource",
@@ -58,4 +64,7 @@ __all__ = [
     "AsyncControlledVocabulariesResourceWithRawResponse",
     "ControlledVocabulariesResourceWithStreamingResponse",
     "AsyncControlledVocabulariesResourceWithStreamingResponse",
+    "ChildResource",
+    "ChildResourceWithRawResponse",
+    "ChildResourceWithStreamingResponse",
 ]
