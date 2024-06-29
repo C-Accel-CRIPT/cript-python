@@ -1,0 +1,63 @@
+# use pytest-cov to see what percentage of the code is being covered by tests
+# WARNING: this workflow will fail if any of the tests within it fail
+
+name: Test Coverage
+permissions: read-all
+
+on:
+  push:
+    branches:
+      - main
+      - pipeline/*
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+
+  # Cancel in-progress runs when a new workflow with the same group name is triggered
+  cancel-in-progress: true
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [3.12]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: upgrade pip
+        run: pip install --upgrade pip
+
+      - name: Install CRIPT Python SDK
+        run: pip install -e .
+
+      - name: Install requirements_dev.txt
+        run: pip install -r requirements_dev.txt
+
+      - name: Retrieve Cognito Tokens from AWS Secrets Manager
+        run: |
+          echo "CRIPT_TOKEN=$(aws secretsmanager get-secret-value --secret-id Pipelines_CognitoAccessToken --query SecretString --output text)" >> $GITHUB_ENV
+          echo "CRIPT_STORAGE_TOKEN=$(aws secretsmanager get-secret-value --secret-id Pipelines_CognitoIdToken --query SecretString --output text)" >> $GITHUB_ENV
+
+      - name: Test Coverage
+
+        run: pytest --cov --cov-fail-under=85
+        env:
+          CRIPT_HOST: https://lb-stage.mycriptapp.org/
+          CRIPT_TOKEN: ${{ env.CRIPT_TOKEN }}
+          CRIPT_STORAGE_TOKEN: ${{ env.CRIPT_STORAGE_TOKEN }}
+          CRIPT_TESTS: True
