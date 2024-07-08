@@ -53,7 +53,7 @@ jobs:
           echo "CRIPT_TOKEN=$(aws secretsmanager get-secret-value --secret-id Pipelines_CognitoAccessToken --query SecretString --output text)" >> $GITHUB_ENV
           echo "CRIPT_STORAGE_TOKEN=$(aws secretsmanager get-secret-value --secret-id Pipelines_CognitoIdToken --query SecretString --output text)" >> $GITHUB_ENV
 
-      - name: Test Coverage
+      - name: Test Pytest
 
         run: pytest tests/api_resources/test_cript.py
         env:
