@@ -34,9 +34,7 @@ from .controlled_vocabularies import (
 )
 
 from .child import (
-    ChildResource,
-    ChildResourceWithRawResponse,
-    ChildResourceWithStreamingResponse,
+    ChildPaginator,
 )
 
 __all__ = [
@@ -64,7 +62,5 @@ __all__ = [
     "AsyncControlledVocabulariesResourceWithRawResponse",
     "ControlledVocabulariesResourceWithStreamingResponse",
     "AsyncControlledVocabulariesResourceWithStreamingResponse",
-    "ChildResource",
-    "ChildResourceWithRawResponse",
-    "ChildResourceWithStreamingResponse",
+    "ChildPaginator",
 ]
