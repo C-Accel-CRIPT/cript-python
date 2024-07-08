@@ -223,7 +223,8 @@ class CriptNode(dict):
             # TODO consider a caching of these paginators
             if key in self.children:
                 child_paginator = cript.resources.child.ChildPaginator(self, key)
-                return child_paginator
+                self.__dict__[key] = child_paginator
+                return self.__dict__[key]
             else:
                 raise AttributeError(key)
 
