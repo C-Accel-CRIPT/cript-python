@@ -39,9 +39,13 @@ class CriptNode(dict):
             self.__dict__["validator_instance"] = cls(schema, resolver=resolver)
         else:
             self.__dict__["validator_instance"] = cls(schema)
+
+        # Early exit for initialized nodes
+        if self.initialized:
+            return
         d = dict(*args, **kwargs)
 
-        if (self._retrieve_on_init and not self.initialized) or kwargs.get("uuid"):
+        if self._retrieve_on_init or kwargs.get("uuid"):
             if "uuid" not in kwargs and len(kwargs) > 1:
                 self.validate(d)
             node = camel_case_to_snake_case(self.__class__.__name__)
@@ -65,9 +69,8 @@ class CriptNode(dict):
                 setattr(self, key, kwargs[key])
 
         # process children
-        if not self.initialized:
-            self.process_children()
-            self.final_update()
+        self.process_children()
+        self.final_update()
         self.__dict__["initialized"] = True
 
 
