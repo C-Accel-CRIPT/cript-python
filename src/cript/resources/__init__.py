@@ -33,6 +33,10 @@ from .controlled_vocabularies import (
     AsyncControlledVocabulariesResourceWithStreamingResponse,
 )
 
+from .child import (
+    ChildPaginator,
+)
+
 __all__ = [
     "SchemaResource",
     "AsyncSchemaResource",
@@ -58,4 +62,5 @@ __all__ = [
     "AsyncControlledVocabulariesResourceWithRawResponse",
     "ControlledVocabulariesResourceWithStreamingResponse",
     "AsyncControlledVocabulariesResourceWithStreamingResponse",
+    "ChildPaginator",
 ]

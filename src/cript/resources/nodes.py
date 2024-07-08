@@ -151,6 +151,8 @@ class NodesResource(SyncAPIResource):
         *,
         node: str,
         child_node: str,
+        # TODO change to after
+        page: int | None = None,
         # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
         # The extra values given here take precedence over values defined on the client or passed to this method.
         extra_headers: Headers | None = None,
@@ -176,10 +178,19 @@ class NodesResource(SyncAPIResource):
             raise ValueError(f"Expected a non-empty value for `uuid` but received {uuid!r}")
         if not child_node:
             raise ValueError(f"Expected a non-empty value for `child_node` but received {child_node!r}")
+        # TODO change to after
+        if page is not None:
+            query = {"page": page}
+        else:
+            query = {} # Does it make sense to allow non-paginated retrieval? The current Code uses it.
         return self._get(
             f"/{node}/{uuid}/{child_node}",
             options=make_request_options(
-                extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                query=query,
             ),
             cast_to=Search,
         )
