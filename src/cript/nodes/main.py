@@ -358,7 +358,7 @@ class CriptNode(dict):
         try:
             if not self._primary_key:
                 result = self.__dict__["client"].nodes.retrieve_children(
-                    node=parent.name_url, uuid=parent.uuid, child_node=child.name_url
+                    node=parent.name_url, uuid=parent.uuid, child_node=child.name_url,
                 )
             else:
                 result = self.__dict__["client"].search.exact.child_node(

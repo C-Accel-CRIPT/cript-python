@@ -28,6 +28,7 @@ class ChildPaginator:
 
         self._current_child_list = []
         self._current_child_position = 0
+        # TODO change to after
         self._current_page = 0
         self._count = None
 
@@ -51,8 +52,10 @@ class ChildPaginator:
         if self._finished_fetching:
             raise StopIteration
 
-        response = self._client._child.child(self._parent, self._child, self._current_page)
+        # TODO change to after
+        response = self._client.nodes.retrieve_children(uuid=self._parent.uuid, node=self._parent.name_url, child_node=self._child, page=self._current_page)
         self._current_page += 1
+
         if self._count is not None and self._count != int(response.data.count):
             raise RuntimeError("The number of elements for a child iteration changed during pagination. This may lead to inconsistencies. Please try again.")
         self._count = int(response.data.count)

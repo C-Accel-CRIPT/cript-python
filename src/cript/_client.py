@@ -49,7 +49,6 @@ class Cript(SyncAPIClient):
     schema: resources.SchemaResource
     nodes: resources.NodesResource
     search: resources.SearchResource
-    _child: resources.child.ChildResource
     controlled_vocabularies: resources.ControlledVocabulariesResource
     with_raw_response: CriptWithRawResponse
     with_streaming_response: CriptWithStreamedResponse
@@ -111,7 +110,6 @@ class Cript(SyncAPIClient):
         self.schema = resources.SchemaResource(self)
         self.nodes = resources.NodesResource(self)
         self.search = resources.SearchResource(self)
-        self._child = resources.child.ChildResource(self)
         self.controlled_vocabularies = resources.ControlledVocabulariesResource(self)
         self.with_raw_response = CriptWithRawResponse(self)
         self.with_streaming_response = CriptWithStreamedResponse(self)
