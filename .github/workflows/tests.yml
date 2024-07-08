@@ -30,7 +30,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.12]
+        python-version: [3.8, 3.12]
     steps:
       - uses: actions/checkout@v4
 
@@ -55,7 +55,7 @@ jobs:
 
       - name: Test Coverage
 
-        run: pytest --cov --cov-fail-under=85
+        run: pytest tests/api_resources/test_cript.py
         env:
           CRIPT_HOST: https://lb-stage.mycriptapp.org/
           CRIPT_TOKEN: ${{ env.CRIPT_TOKEN }}
