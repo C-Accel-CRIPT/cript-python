@@ -57,7 +57,6 @@ jobs:
 
         run: pytest tests/api_resources/test_cript.py
         env:
-          CRIPT_HOST: https://lb-stage.mycriptapp.org/
-          CRIPT_TOKEN: ${{ env.CRIPT_TOKEN }}
-          CRIPT_STORAGE_TOKEN: ${{ env.CRIPT_STORAGE_TOKEN }}
-          CRIPT_TESTS: True
+          CRIPT_BASE_URL: https://lb-stage.mycriptapp.org/
+          CRIPT_API_KEY: ${{ env.CRIPT_TOKEN }}
+          CRIPT_STORAGE: ${{ env.CRIPT_STORAGE_TOKEN }}
