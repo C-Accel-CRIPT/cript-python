@@ -1,7 +1,7 @@
 # use pytest-cov to see what percentage of the code is being covered by tests
 # WARNING: this workflow will fail if any of the tests within it fail
 
-name: Test Coverage
+name: Test Pytest
 permissions: read-all
 
 on:
@@ -25,7 +25,7 @@ env:
   AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
 
 jobs:
-  test-coverage:
+  test-pytest:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -45,8 +45,8 @@ jobs:
       - name: Install CRIPT Python SDK
         run: pip install -e .
 
-      - name: Install requirements_dev.txt
-        run: pip install -r requirements_dev.txt
+      - name: Install requirements-dev.lock
+        run: pip install -r requirements-dev.lock
 
       - name: Retrieve Cognito Tokens from AWS Secrets Manager
         run: |
