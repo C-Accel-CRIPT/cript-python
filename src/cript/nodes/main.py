@@ -7,6 +7,8 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import best_match
 from uuid import uuid4
 
+import cript
+import inspect
 from cript import Cript, NotFoundError, camel_case_to_snake_case, extract_node_from_result
 from .schema import cript_schema
 
@@ -22,7 +24,7 @@ class CriptNode(dict):
         self.__dict__["exists"] = self.__dict__.get("exists", False)
         self.__dict__["client"] = self.__dict__.get("client", Cript())
         self.__dict__["children"] = self.__dict__.get("children", {})
-        self.__dict__["initialized"] = False
+        self.__dict__["initialized"] = kwargs.get("initialized", False)
         self.__dict__["parent"] = None
         schema = copy.deepcopy(cript_schema)
         schema["$ref"] = f"#/$defs/{self.__class__.__name__}Post"
@@ -39,7 +41,7 @@ class CriptNode(dict):
             self.__dict__["validator_instance"] = cls(schema)
         d = dict(*args, **kwargs)
 
-        if self._retrieve_on_init or kwargs.get("uuid"):
+        if (self._retrieve_on_init and not self.initialized) or kwargs.get("uuid"):
             if "uuid" not in kwargs and len(kwargs) > 1:
                 self.validate(d)
             node = camel_case_to_snake_case(self.__class__.__name__)
@@ -63,9 +65,31 @@ class CriptNode(dict):
                 setattr(self, key, kwargs[key])
 
         # process children
-        self.process_children()
-        self.final_update()
+        if not self.initialized:
+            self.process_children()
+            self.final_update()
         self.__dict__["initialized"] = True
+
+
+    @staticmethod
+    def _from_dict(json_dict: dict):
+        node_name_list = json_dict.get("node", None)
+        if node_name_list is None or not isinstance(node_name_list, list) or len(node_name_list) != 1:
+            raise ValueError(f"Conversion of dictionary to CRIPT Node failed, since 'node' is {node_name_list} given.")
+        node_name_str = node_name_list[0]
+
+        for key, pyclass in inspect.getmembers(cript.nodes, inspect.isclass):
+            if CriptNode in inspect.getmro(pyclass):
+                if key == node_name_str:
+                    next_node = pyclass._cls_from_dict(json_dict)
+                    return next_node
+        raise ValueError(f"Unknow node conversion attempt {json_dict}")
+
+    @classmethod
+    def _cls_from_dict(cls, json_dict: dict):
+        json_dict["initialized"] = True
+        next_node = cls(**json_dict)
+        return next_node
 
     @property
     def name_url(self):
