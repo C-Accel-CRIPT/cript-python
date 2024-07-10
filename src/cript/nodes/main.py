@@ -42,6 +42,8 @@ class CriptNode(dict):
 
         # Early exit for initialized nodes
         if self.initialized:
+            for key in kwargs:
+                setattr(self, key, kwargs[key])
             return
         d = dict(*args, **kwargs)
 
