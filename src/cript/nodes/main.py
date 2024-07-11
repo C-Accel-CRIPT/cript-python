@@ -7,6 +7,8 @@ from jsonschema.validators import validator_for
 from jsonschema.exceptions import best_match
 from uuid import uuid4
 
+import cript
+import inspect
 from cript import Cript, NotFoundError, camel_case_to_snake_case, extract_node_from_result
 from .schema import cript_schema
 
@@ -22,7 +24,7 @@ class CriptNode(dict):
         self.__dict__["exists"] = self.__dict__.get("exists", False)
         self.__dict__["client"] = self.__dict__.get("client", Cript())
         self.__dict__["children"] = self.__dict__.get("children", {})
-        self.__dict__["initialized"] = False
+        self.__dict__["initialized"] = kwargs.get("initialized", False)
         self.__dict__["parent"] = None
         schema = copy.deepcopy(cript_schema)
         schema["$ref"] = f"#/$defs/{self.__class__.__name__}Post"
@@ -37,6 +39,14 @@ class CriptNode(dict):
             self.__dict__["validator_instance"] = cls(schema, resolver=resolver)
         else:
             self.__dict__["validator_instance"] = cls(schema)
+
+        allowed_attributes = self._allowed_attributes(kwargs)
+
+        # Early exit for initialized nodes
+        if self.initialized:
+            for key in allowed_attributes:
+                setattr(self, key, kwargs[key])
+            return
         d = dict(*args, **kwargs)
 
         if self._retrieve_on_init or kwargs.get("uuid"):
@@ -66,6 +76,34 @@ class CriptNode(dict):
         self.process_children()
         self.final_update()
         self.__dict__["initialized"] = True
+
+
+    def _allowed_attributes(self, attributes):
+        allowed_data = {}
+        for key in attributes:
+            if key in self.__dict__["schema"]["$defs"][f"{self.__class__.__name__}Post"]["properties"]:
+                allowed_data[key] = attributes[key]
+        return allowed_data
+
+    @staticmethod
+    def _from_dict(json_dict: dict):
+        node_name_list = json_dict.get("node", None)
+        if node_name_list is None or not isinstance(node_name_list, list) or len(node_name_list) != 1:
+            raise ValueError(f"Conversion of dictionary to CRIPT Node failed, since 'node' is {node_name_list} given.")
+        node_name_str = node_name_list[0]
+
+        for key, pyclass in inspect.getmembers(cript.nodes, inspect.isclass):
+            if CriptNode in inspect.getmro(pyclass):
+                if key == node_name_str:
+                    next_node = pyclass._cls_from_dict(json_dict)
+                    return next_node
+        raise ValueError(f"Unknow node conversion attempt {json_dict}")
+
+    @classmethod
+    def _cls_from_dict(cls, json_dict: dict):
+        json_dict["initialized"] = True
+        next_node = cls(**json_dict)
+        return next_node
 
     @property
     def name_url(self):
@@ -316,11 +354,10 @@ class CriptNode(dict):
             result = self.__dict__["client"].nodes.retrieve(node=self.name_url, uuid=uuid)
             data = extract_node_from_result(result.data)
             self.__dict__["exists"] = True
-            allowed_data = {}
-            for key in data:
-                if key in self.__dict__["schema"]["$defs"][f"{self.__class__.__name__}Post"]["properties"]:
-                    setattr(self, key, data[key])
-                    allowed_data[key] = data[key]
+
+            allowed_data = self._allowed_attributes(data)
+            for key in allowed_data:
+                setattr(self, key, data[key])
             self.__dict__["__original__"] = copy.deepcopy(allowed_data)
         except NotFoundError:
             self.__dict__["exists"] = False

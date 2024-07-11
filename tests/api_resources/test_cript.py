@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytest
 
+import cript
 from cript import *
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
@@ -48,7 +49,7 @@ class TestCript:
             notes="my notes",
         )
         assert node.get("name") is not None
-    
+
     def test_create_collection_exisiting_project(self) -> None:
         col1=Collection(name=generic_collection)
         proj = Project(uuid=CREATED_UUID, collection=[col1])
@@ -67,6 +68,15 @@ class TestCript:
         proj1 = Project(uuid=CREATED_UUID, collection=[col1])
         assert exp1.get("name") == generic_experiment
 
+    @pytest.mark.parametrize("query", ["tol", "styrene"])
+    def test_create_children(self, query) -> None:
+        result = Search(node="Material", q=query, filters={"limit": 10})
+        for i, d in enumerate(result):
+            node = cript.nodes.CriptNode._from_dict(d)
+            assert isinstance(node, cript.nodes.CriptNode)
+            assert isinstance(node, cript.Material)
+            assert query in node.name.lower()
+        assert i > 0
 
     def test_create_material(self) -> None:
         comp_forcefield= ComputationalForcefield(key="mmff", building_block="atom")
