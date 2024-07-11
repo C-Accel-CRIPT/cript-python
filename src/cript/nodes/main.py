@@ -40,9 +40,11 @@ class CriptNode(dict):
         else:
             self.__dict__["validator_instance"] = cls(schema)
 
+        allowed_attributes = self._allowed_attributes(kwargs)
+
         # Early exit for initialized nodes
         if self.initialized:
-            for key in kwargs:
+            for key in allowed_attributes:
                 setattr(self, key, kwargs[key])
             return
         d = dict(*args, **kwargs)
@@ -75,6 +77,13 @@ class CriptNode(dict):
         self.final_update()
         self.__dict__["initialized"] = True
 
+
+    def _allowed_attributes(self, attributes):
+        allowed_data = {}
+        for key in attributes:
+            if key in self.__dict__["schema"]["$defs"][f"{self.__class__.__name__}Post"]["properties"]:
+                allowed_data[key] = attributes[key]
+        return allowed_data
 
     @staticmethod
     def _from_dict(json_dict: dict):
@@ -345,11 +354,10 @@ class CriptNode(dict):
             result = self.__dict__["client"].nodes.retrieve(node=self.name_url, uuid=uuid)
             data = extract_node_from_result(result.data)
             self.__dict__["exists"] = True
-            allowed_data = {}
-            for key in data:
-                if key in self.__dict__["schema"]["$defs"][f"{self.__class__.__name__}Post"]["properties"]:
-                    setattr(self, key, data[key])
-                    allowed_data[key] = data[key]
+
+            allowed_data = self._allowed_attributes(data)
+            for key in allowed_data:
+                setattr(self, key, data[key])
             self.__dict__["__original__"] = copy.deepcopy(allowed_data)
         except NotFoundError:
             self.__dict__["exists"] = False
